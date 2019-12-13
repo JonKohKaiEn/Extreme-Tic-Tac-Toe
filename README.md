@@ -10,9 +10,9 @@ RULES OF ETTT:
 
 Positions of each cell are as follows:
 
-0  1  2 \n
-3  4  5 \n
-6  7  8 \n
+0  1  2 /n
+3  4  5 /n
+6  7  8 /n
 
 Positions of the larger cells follow the same numbering
 
