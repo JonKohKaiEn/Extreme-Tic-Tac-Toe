@@ -16,5 +16,10 @@ Positions of each cell are as follows:
 
 Positions of the larger cells follow the same numbering
 
+Guide to UI:\
+0 : cell can be taken\
+1 or 2: cell taken by player 1 or player 2 respectively\
+3: cell is in a draw state
+
 Requirements:\
 python 3.7.4
