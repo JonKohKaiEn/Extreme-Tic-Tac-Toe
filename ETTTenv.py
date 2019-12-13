@@ -9,16 +9,12 @@ RULES OF ETTT:
 
 class extreme_TTT:
 
-    def __init__(self, p1, p2):
+    def __init__(self):
 
         # defines what postitions to check for winner
         self.win_check_list = [(0,1,2), (3,4,5), (6,7,8),     # rows
                                (0,3,6), (1,4,7), (2,5,8),     # columns
                                (0,4,8), (2,4,6)]              # diagonals
-
-        # sets the players, either human or bot
-        self.player1 = p1
-        self.player2 = p2
 
     # returns a list of all possible next moves
     def get_possible_moves(self):
@@ -54,8 +50,7 @@ class extreme_TTT:
     # updates board with updated state, accepts tuple as move
     def move(self, position):
 
-        if (self.player1 == 'human' and self.player == 1) or (self.player2 == 'human' and self.player == 2):
-            self.print_board()
+        self.print_board()
 
         # parse position into cell and subcell
         move_cell, move_subcell = position
