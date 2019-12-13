@@ -88,7 +88,7 @@ class extreme_TTT:
         p2_win = False
         cell_won = 0
 
-        # check if a player has won a cell
+        # check if a player has won a cell or a cell ends up in a draw
         for cell_idx, cell in enumerate(self.board):
             for test_idx_1, test_idx_2, test_idx_3 in self.win_check_list:
 
@@ -109,6 +109,11 @@ class extreme_TTT:
                 else:
                     pass
 
+            if min(cell) != 0:
+                self.macro_board[cell_idx] = 3
+                for idx in range(0,9):
+                    self.board[cell_idx][idx] = 3
+
         # prints if a player has won a cell
         if p1_win:
             print(f"Player 1 wins cell {cell_won}!")
@@ -127,7 +132,7 @@ class extreme_TTT:
                 elif self.macro_board[test_idx_1] == self.macro_board[test_idx_2] == self.macro_board[test_idx_3] and self.macro_board[test_idx_1] == 2:
                     print(f"Player 2 wins!")
                     self.done = True
-
+    
     # resets the board and game variables
     def reset(self):
         # initialise the board
@@ -188,20 +193,4 @@ class extreme_TTT:
 
 # for testing
 if __name__ == "__main__":
-    env = extreme_TTT('human', 'human')
-    env.reset()
-
-    while not env.done:
-        env.print_board()
-        if env.player == 1:
-            print(f"Player 1: {env.player1} turn!")
-        else:
-            print(f"Player 2: {env.player2} turn!")
-        print(env.get_possible_moves())
-        if (env.player1 == 'human' and env.player == 1) or (env.player2 == 'human' and env.player == 2):
-            move_cell = int(input("INPUT MOVE CELL: "))
-            move_subcell = int(input("INPUT MOVE SUBCELL: "))
-            if (move_cell, move_subcell) not in env.get_possible_moves():
-                continue
-            else:
-                env.move((move_cell, move_subcell))
+    pass
