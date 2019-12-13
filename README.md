@@ -24,3 +24,7 @@ x: cell is available to be taken on that turn
 
 Requirements:\
 python 3.7.4
+
+To run game:\
+Run test play.py\
+Only for player vs player now
