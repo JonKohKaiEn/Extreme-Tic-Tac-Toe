@@ -1,6 +1,6 @@
-# ETTT-mcts
+# ETTT
 
-Extreme Tic Tac Toe with Monte Carlo Tree Search(MCTS) AI.
+Extreme Tic Tac Toe with AI(To be added...).
 
 RULES OF ETTT:
 1) 1st move: can place anywhere
@@ -17,5 +17,4 @@ Positions of each cell are as follows:
 Positions of the larger cells follow the same numbering
 
 Requirements:\
-python 3.7.4\
-mcts
+python 3.7.4
