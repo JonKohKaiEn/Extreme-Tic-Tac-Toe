@@ -10,12 +10,12 @@ RULES OF ETTT:
 
 Positions of each cell are as follows:
 
-0  1  2
-3  4  5
-6  7  8
+0  1  2 \n
+3  4  5 \n
+6  7  8 \n
 
 Positions of the larger cells follow the same numbering
 
-Requirements:
-python 3.7.4
-mcts
+Requirements: \n
+python 3.7.4 \n
+mcts \n
