@@ -50,7 +50,7 @@ class extreme_TTT:
     # updates board with updated state, accepts tuple as move
     def move(self, position):
 
-        self.print_board()
+        # self.print_board()
 
         # parse position into cell and subcell
         move_cell, move_subcell = position
@@ -72,7 +72,7 @@ class extreme_TTT:
         self.win_state()
         self.turn += 1
         self.last_move = position
-        print(self.last_move)
+        # print(self.last_move)
         
         # changes the player when turn ends
         if self.player == 1:
@@ -92,6 +92,7 @@ class extreme_TTT:
         for cell_idx, cell in enumerate(self.board):
 
             if min(cell) != 0:
+                print(min(cell))
                 self.macro_board[cell_idx] = 3
                 for idx in range(0,9):
                     self.board[cell_idx][idx] = 3
@@ -114,6 +115,8 @@ class extreme_TTT:
 
                 else:
                     pass
+
+            
 
         # prints if a player has won a cell
         if p1_win:
