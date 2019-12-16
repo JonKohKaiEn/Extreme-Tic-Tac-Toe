@@ -55,7 +55,7 @@ class extreme_TTT:
         # parse position into cell and subcell
         move_cell, move_subcell = position
 
-        if self.macro_board[move_cell] != 0:
+        if self.macro_board[move_subcell] != 0:
             self.any_cell = True
 
         # check if subcell is available
@@ -91,12 +91,6 @@ class extreme_TTT:
         # check if a player has won a cell or a cell ends up in a draw
         for cell_idx, cell in enumerate(self.board):
 
-            if min(cell) != 0:
-                print(min(cell))
-                self.macro_board[cell_idx] = 3
-                for idx in range(0,9):
-                    self.board[cell_idx][idx] = 3
-
             for test_idx_1, test_idx_2, test_idx_3 in self.win_check_list:
 
                 if cell[test_idx_1] == cell[test_idx_2] == cell[test_idx_3] and cell[test_idx_1] == 1 and self.macro_board[cell_idx] == 0:
@@ -114,10 +108,12 @@ class extreme_TTT:
                         self.board[cell_idx][idx] = 2
 
                 else:
-                    pass
-
-            
-
+                    if min(cell) != 0 and self.macro_board[cell_idx] == 0:
+                        print(min(cell))
+                        self.macro_board[cell_idx] = 3
+                        for idx in range(0,9):
+                            self.board[cell_idx][idx] = 3
+                            
         # prints if a player has won a cell
         if p1_win:
             print(f"Player 1 wins cell {cell_won}!")

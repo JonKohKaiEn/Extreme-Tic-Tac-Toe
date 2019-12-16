@@ -20,6 +20,15 @@ moves_list = []
 env = extreme_TTT()
 env.reset()
 
+# starting from a previous save file
+load_file = '47__1576424076'
+if load_file is not None:
+    with open(f'replay/{load_file}.txt', 'r') as f:
+        moves_list = json.loads(f.readline())
+    for move in moves_list:
+        move = tuple(move)
+        env.move(move)
+
 try:
     while not env.done:
         env.print_board()
@@ -36,6 +45,8 @@ try:
         else:
             env.move((move_cell, move_subcell))
             moves_list.append((move_cell, move_subcell))
+    print("Game finished! Saving moves...")
+    save_move_list()
 
 except:
     save_move_list()
