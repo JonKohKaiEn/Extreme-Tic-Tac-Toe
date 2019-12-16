@@ -5,8 +5,7 @@ import json
 env = extreme_TTT()
 env.reset()
 
-os.chdir('C:\\Users\Jonathan Koh\Desktop\extreme_tictactoe')
-file_name = '48__1576424760'
+file_name = ''
 with open(f'replay/{file_name}.txt', 'r') as f:
     replay_list = json.loads(f.readline())
 
