@@ -3,8 +3,6 @@ import os
 import json
 import time
 
-os.chdir('C:\\Users\Jonathan Koh\Desktop\extreme_tictactoe')
-
 if not os.path.isdir('replay'):
     print("making replay folder...")
     os.makedirs('replay')
@@ -19,6 +17,15 @@ moves_list = []
 
 env = extreme_TTT()
 env.reset()
+
+# starting from a previous save file
+load_file = None
+if load_file is not None:
+    with open(f'replay/{load_file}.txt', 'r') as f:
+        moves_list = json.loads(f.readline())
+    for move in moves_list:
+        move = tuple(move)
+        env.move(move)
 
 try:
     while not env.done:
@@ -36,6 +43,8 @@ try:
         else:
             env.move((move_cell, move_subcell))
             moves_list.append((move_cell, move_subcell))
+    print("Game finished! Saving moves...")
+    save_move_list()
 
 except:
     save_move_list()
