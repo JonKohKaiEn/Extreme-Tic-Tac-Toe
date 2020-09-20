@@ -7,11 +7,14 @@ RULES OF ETTT:
 
 '''
 
+from math import inf
+import time
+
 class extreme_TTT:
 
     def __init__(self):
 
-        # defines what postitions to check for winner
+        # defines what positions to check for winner
         self.win_check_list = [(0,1,2), (3,4,5), (6,7,8),     # rows
                                (0,3,6), (1,4,7), (2,5,8),     # columns
                                (0,4,8), (2,4,6)]              # diagonals
@@ -42,46 +45,65 @@ class extreme_TTT:
 
             else:
                 for cell_pos in range(0,9):
-                    if self.board[self.last_move[1]][cell_pos] == 0:
-                        possible_moves.append((self.last_move[1], cell_pos))
+                    if self.board[self.move_list[-1][1]][cell_pos] == 0:
+                        possible_moves.append((self.move_list[-1][1],  cell_pos))
 
         return possible_moves
     
     # updates board with updated state, accepts tuple as move
-    def move(self, position):
+    def move(self, position, verbose=True):
 
         # self.print_board()
 
         # parse position into cell and subcell
         move_cell, move_subcell = position
 
-        if self.macro_board[move_subcell] != 0:
-            self.any_cell = True
-
         # check if subcell is available
         if position not in self.get_possible_moves():
             print("Invalid move! Please re-enter your move.")
 
         else:
-            # update postition with player number
+            # update position with player number
             if self.player == 1:
                 self.board[move_cell][move_subcell] = 1
             else:
                 self.board[move_cell][move_subcell] = 2
 
-        self.win_state()
-        self.turn += 1
-        self.last_move = position
-        # print(self.last_move)
+            self.win_state(verbose=verbose)
+            self.turn += 1
+            self.move_list.append(position)
+
+            if self.macro_board[move_subcell] != 0:
+                self.any_cell = True
+            
+            # changes the player when turn ends
+            if self.player == 1:
+                self.player = 2
+            else:
+                self.player = 1
+
+    def undo(self):
         
-        # changes the player when turn ends
-        if self.player == 1:
-            self.player = 2
+        self.turn -= 1
+        if self.turn == 1:
+            self.board[self.move_list[0][0]][self.move_list[0][1]] = 0
         else:
-            self.player = 1
+            self.board[self.move_list[-1][0]][self.move_list[-1][1]] = 0
+            self.macro_board[self.move_list[-1][0]] = 0
+            if self.move_list[-1][0] != self.move_list[-2][1]:
+                self.any_cell = False 
+
+            if self.player == 1:
+                self.player = 2
+            else:
+                self.player = 1
+
+        del self.move_list[-1]
+
+
     
     # detects whether a player wins and prints out the winner
-    def win_state(self):
+    def win_state(self, verbose=True):
 
         # variables that keep track of whether a player has won a cell
         p1_win = False
@@ -115,23 +137,34 @@ class extreme_TTT:
                             self.board[cell_idx][idx] = 3
                             
         # prints if a player has won a cell
-        if p1_win:
-            print(f"Player 1 wins cell {cell_won}!")
-        elif p2_win:
-            print(f"Player 2 wins cell {cell_won}!")
+        if verbose:
+            if p1_win:
+                print(f"Player 1 wins cell {cell_won}!")
+            elif p2_win:
+                print(f"Player 2 wins cell {cell_won}!")
+            else:
+                pass
         else:
             pass
 
         # checks if a player has won the game
-        for test_idx_1, test_idx_2, test_idx_3 in self.win_check_list:
+            for test_idx_1, test_idx_2, test_idx_3 in self.win_check_list:
 
-                if self.macro_board[test_idx_1] == self.macro_board[test_idx_2] == self.macro_board[test_idx_3] and self.macro_board[test_idx_1] == 1:
-                    print(f"Player 1 wins!")
-                    self.done = True
+                    if self.macro_board[test_idx_1] == self.macro_board[test_idx_2] == self.macro_board[test_idx_3] and self.macro_board[test_idx_1] == 1:
+                        self.done = True
+                        self.winner = 1
+                        if verbose:
+                            print(f"Player 1 wins!")
+                        else:
+                            pass
 
-                elif self.macro_board[test_idx_1] == self.macro_board[test_idx_2] == self.macro_board[test_idx_3] and self.macro_board[test_idx_1] == 2:
-                    print(f"Player 2 wins!")
-                    self.done = True
+                    elif self.macro_board[test_idx_1] == self.macro_board[test_idx_2] == self.macro_board[test_idx_3] and self.macro_board[test_idx_1] == 2:
+                        self.done = True
+                        self.winner = 2
+                        if verbose:
+                            print(f"Player 2 wins!")
+                        else:
+                            pass
     
     # resets the board and game variables
     def reset(self):
@@ -162,6 +195,12 @@ class extreme_TTT:
         # variable that keeps track of whether the game has been won
         self.done = False
 
+        # variable that stores the winner of the game
+        self.winner = 0
+
+        # variable that keeps track of all the moves played
+        self.move_list = []
+
     # prints the board
     def print_board(self):
 
@@ -191,6 +230,64 @@ class extreme_TTT:
         for cell, subcell in replaced_list:
             self.board[cell][subcell] = 0
 
+def end_eval(state, depth, player):
+
+    if state.winner == player:
+        score = 10 - 0.05*depth
+    elif state.winner == -player:
+        score = -10
+    else:
+        score = 0
+
+def ai_move(state):
+
+    start_time = time.time()
+    player = state.player
+
+    available_moves = state.get_possible_moves()
+    scores = []
+
+    for move in available_moves:
+        state.move(move, verbose=False)
+        scores.append(minimax(state, False, 1, -inf, inf, player))
+        state.undo()
+    
+    best_move = available_moves[scores.index(max(scores))]
+    end_time = time.time()
+    print(f"scores: {scores}, elapsed time: {round((end_time-start_time), 5)}")
+    return best_move
+
+def minimax(state, is_max, depth, alpha, beta, player):
+    
+    if state.done:
+        return end_eval(state, depth, player)
+
+    else:
+        best_score = -inf if is_max else inf
+
+        for move in state.get_possible_moves():
+            state.move(move, verbose=False)
+            score = minimax(state, not is_max, depth+1, -inf, inf, player)
+            state.undo()
+            if is_max:
+                best_score = max(score, best_score)
+                alpha = max(alpha, score)
+                if alpha >= beta:
+                    break
+            else:
+                best_score = min(score, best_score)
+                beta = min(beta, score)
+                if alpha >= beta:
+                    break
+
+        return best_score
+
 # for testing
 if __name__ == "__main__":
-    pass
+    env = extreme_TTT()
+    env.reset()
+    env.print_board()
+
+    while not env.done:
+        env.move(ai_move(env))
+        env.print_board()
