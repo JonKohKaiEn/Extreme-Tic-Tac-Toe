@@ -1,39 +1,63 @@
-import numpy as np
+from typing import List, Tuple
+
 
 class Board:
+
+    def __init__(self) -> None:
+        
+        self.board = [[0] * 9 for _ in range(9)]
+        self.macro_board = [0] * 9
+        self.player = 1
+        self.curr_miniboard = -1
+        self.move_list = []
+        self.done = None
+
+    def is_valid(self, move: Tuple[int]) -> bool:
+
+        if not self.board[move[0]][move[1]]:  #if cell is empty
+
+            if move[0] == self.curr_miniboard or self.curr_miniboard == -1:  # if it is in current miniboard or if any cell is at play
+                return True
+
+        return False
     
-    def __init__(self):
-        self.p1_large_board = np.zeros((9,9), dtype=int)  # Overall game board for player 1
-        self.p2_large_board = np.zeros((9,9), dtype=int)  # Overall game board for player 2
-        self.p1_small_boards = np.zeros((9,))  # Tracks which small board has been won by player 1
-        self.p2_small_boards = np.zeros((9,))  # Tracks which small board has been won by player 2
-        self.curr_player = 1
-        self.curr_small_board = -1
-        self.done = False
+    def mark(self, move: Tuple[int]) -> None:
+        
+        if self.is_valid(move):  # if move is valid
+            self.board[move[0]][move[1]] = self.player
+            self.macro_board[move[0]] = self.board_status(self.board[move[0]])  # update macro board
+            self.move_list.append(move)
+            game_state = self.board_status(self.macro_board)
 
-    
-    def board_array(self, output_cellwise=False, show_valid_moves=True):
+            if  game_state:  # if game is finished
+                self.done = game_state  # set done
+            else:
+                self.curr_miniboard = -1 if self.macro_board[move[1]] else move[1]  # update current miniboard
+                self.player *= -1  # update player
 
-        cellwise_combined_board = self.p1_large_board + (self.p2_large_board * -1)
+        else:
+            print(f"Invalid move: {move}")
 
-        # check for boards won
-        if np.any(self.p1_small_boards):
-            cellwise_combined_board[np.where(self.p1_small_boards == 1)] = 1
-        if np.any(self.p2_small_boards):
-            cellwise_combined_board[np.where(self.p2_small_boards == 1)] = -1
+    def board_status(self, list_to_check: List[int]) -> int:
+        
+        checklist = [(0,1,2), (3,4,5), (6,7,8),     # rows
+                     (0,3,6), (1,4,7), (2,5,8),     # columns
+                     (0,4,8), (2,4,6)]              # diagonals
 
-        if show_valid_moves:
-            valid_moves = self.get_valid_moves(as_index=True)
-            cellwise_combined_board[valid_moves] = 2
+        for check_idx in checklist:
 
-        if output_cellwise:
-            return cellwise_combined_board
+            if list_to_check[check_idx[0]] == list_to_check[check_idx[1]] == list_to_check[check_idx[2]] and list_to_check[check_idx[0]] != 0:
+                return 1 if list_to_check[check_idx[0]] == 1 else -1
 
-        combined_small_boards = [np.reshape(cellwise_combined_board[i], (3,3)) for i in range(9)]
-        combined_board_rows = [np.hstack((combined_small_boards[i], combined_small_boards[i+1], combined_small_boards[i+2])) for i in range(0,7,3)]
-        board_arr_out = np.vstack(tuple(combined_board_rows))
-        return board_arr_out
-    
+        if all(list_to_check):
+            return 2
+
+        return 0
+
+    @property
+    def valid_moves(self) -> List[Tuple]:
+
+        return [(miniboard, cell) for miniboard in range(9) for cell in range(9) if self.is_valid((miniboard, cell))]
 
     def __str__(self):
 
@@ -42,104 +66,29 @@ class Board:
                 return "O"
             elif n == -1:
                 return "X"
-            elif n == 2:  # Valid moves
-                return "."
-            else:
+            elif n == 0:
                 return " "
+
+        idx_gen = ((miniboard, cell) for miniboard in range(9) for cell in range(9))
+
+        disp_board = [[0] * 9 for _ in range(9)]
+
+        for (miniboard, cell) in idx_gen:
+            if self.macro_board[miniboard]:
+                disp_board[miniboard][cell] = num_to_disp(self.macro_board[miniboard])
+            else:
+                disp_board[miniboard][cell] = num_to_disp(self.board[miniboard][cell])
             
-        curr_board_arr = self.board_array()
+        for (miniboard, cell) in self.valid_moves:
+            disp_board[miniboard][cell] = "."
+
         board_str = "+ - - - + - - - + - - - +\n"
-        for row in range(9):
-            row_slice = list(curr_board_arr[row])
-            row_slice = list(map(num_to_disp, row_slice))
-            for i in range(0,7,3):
-                board_str += f"| {row_slice[i]} {row_slice[i+1]} {row_slice[i+2]} "
-            board_str += "|\n"
-            if row in {2, 5, 8}:
-                board_str += "+ - - - + - - - + - - - +\n"
+
+        for miniboard in [0, 3, 6]:  # loop through leftmost miniboards
+            for cell in [0, 3, 6]:  # loop through leftmost cell in set
+                for i in range(3):  # loop through miniboard idx in set
+                    board_str += f"| {disp_board[miniboard+i][cell]} {disp_board[miniboard+i][cell+1]} {disp_board[miniboard+i][cell+2]} "
+                board_str += "|\n"
+            board_str += "+ - - - + - - - + - - - +\n"
 
         return board_str
-
-
-    def get_valid_moves(self, as_index=False):
-
-        large_board = self.p1_large_board + self.p2_large_board
-
-        if self.curr_small_board == -1:  # any cell
-            available_subcells = np.where(large_board==0)[0]
-            available_cells = np.where(large_board==0)[1]
-        else:
-            curr_small_board_arr = large_board[self.curr_small_board, :]
-            available_subcells = np.where(curr_small_board_arr==0)[0]
-            available_cells = (np.ones_like(available_subcells) * self.curr_small_board).flatten()
-            
-        if not as_index:
-            return list(zip(available_cells.tolist(),  available_subcells.tolist()))
-        else:
-            available_cells_idx = (available_cells, available_subcells)
-            return available_cells_idx
-
-
-    def make_move(self, move: tuple):
-
-        if self.curr_player == 1:
-            self.p1_large_board[move[0], move[1]] = 1
-        else:
-            self.p2_large_board[move[0], move[1]] = 1
-
-        self.check_for_win()
-        self.curr_player *= -1
-        
-        # check for any cell
-        small_boards = self.p1_small_boards + self.p2_small_boards
-        if small_boards[move[1]]:
-            self.curr_small_board = -1
-        else:
-            self.curr_small_board = move[1]
-
-
-    def check_for_win(self):
-
-        win_checklist = [[0,1,2], [3,4,5], [6,7,8],    # rows
-                        [0,3,6], [1,4,7], [2,5,8],     # columns
-                        [0,4,8], [2,4,6]]              # diagonals
-        
-        large_board = self.p1_large_board if self.curr_player == 1 else self.p2_large_board
-        small_boards = self.p1_small_boards if self.curr_player == 1 else self.p2_small_boards
-
-        for small_board_idx in range(9):
-
-            # check if small board is already won
-            if small_boards[small_board_idx]:  
-                continue
-
-            # check each small board whether it is won
-            for check_list in win_checklist:
-                curr_small_board = large_board[small_board_idx, check_list]
-                if np.all(curr_small_board):
-                    small_boards[small_board_idx] = 1
-                    large_board[small_board_idx, :] = 1
-
-        # check if the game is won
-        for check_list in win_checklist:
-            if np.all(small_boards[check_list]):
-                self.done = self.curr_player
-        
-        # check if game is drawn
-        
-
-        # update game state
-        if self.curr_player == 1:
-            self.p1_large_board, self.p1_small_boards = large_board, small_boards
-        else:
-            self.p2_large_board, self.p2_small_boards = large_board, small_boards
-
-
-if __name__ == '__main__':
-
-    from random import choice
-
-    test_board = Board()
-    test_board.make_move((8,3))
-    print(test_board)
-    
