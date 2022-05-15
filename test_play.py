@@ -1,17 +1,26 @@
 from ETTTenv_test import Board
-import os
-import json
-import time
-from random import choice
-from math import inf
+from bots import RandomBot
+from copy import deepcopy
 
-board = Board()
+def play(agent1, agent2):
 
-print(board)
-while not board.done:
+    board = Board()
 
-    move = choice(board.valid_moves)
-    print(move)
-    board.mark(move)
-    print(board)
-    print(board.macro_board)
+    while not board.done:
+        print("Agent 1 turn")
+        print(board.valid_moves)
+        board.mark(agent1(board).make_move())
+        print(board)
+        print(board.macro_board)
+        print("\n")
+        print("Agent 2 turn")
+        print(board.valid_moves)
+        board.mark(agent2(board).make_move())
+        print(board)
+        print(board.macro_board)
+        print("\n")
+
+    print("Draw!" if board.done == 2 else f"Player {board.done} won!")
+    print(board.move_list)
+
+play(RandomBot, RandomBot)

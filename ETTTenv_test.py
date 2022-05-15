@@ -14,7 +14,7 @@ class Board:
 
     def is_valid(self, move: Tuple[int]) -> bool:
 
-        if not self.board[move[0]][move[1]]:  #if cell is empty
+        if (not self.board[move[0]][move[1]]) and (not self.macro_board[move[0]]):  #if cell is empty and miniboard is not won
 
             if move[0] == self.curr_miniboard or self.curr_miniboard == -1:  # if it is in current miniboard or if any cell is at play
                 return True
@@ -91,4 +91,4 @@ class Board:
                 board_str += "|\n"
             board_str += "+ - - - + - - - + - - - +\n"
 
-        return board_str
+        return board_str[:-1]
