@@ -25,7 +25,10 @@ class Board:
         
         if self.is_valid(move):  # if move is valid
             self.board[move[0]][move[1]] = self.player
-            self.macro_board[move[0]] = self.board_status(self.board[move[0]])  # update macro board
+            miniboard_status = self.board_status(self.board[move[0]])
+            if miniboard_status:
+                self.board[move[0]] = [miniboard_status] * 9
+            self.macro_board[move[0]] = miniboard_status  # update macro board
             self.move_list.append(move)
             game_state = self.board_status(self.macro_board)
 
@@ -66,21 +69,16 @@ class Board:
                 return "O"
             elif n == -1:
                 return "X"
-            elif n == 0:
+            elif n == 2:
+                return "D"
+            else:
                 return " "
-
-        idx_gen = ((miniboard, cell) for miniboard in range(9) for cell in range(9))
 
         disp_board = [[0] * 9 for _ in range(9)]
 
-        for (miniboard, cell) in idx_gen:
-            if self.macro_board[miniboard]:
-                disp_board[miniboard][cell] = num_to_disp(self.macro_board[miniboard])
-            else:
-                disp_board[miniboard][cell] = num_to_disp(self.board[miniboard][cell])
-            
-        for (miniboard, cell) in self.valid_moves:
-            disp_board[miniboard][cell] = "."
+        for miniboard in range(9):
+            for cell in range(9):
+                disp_board[miniboard][cell] = "." if self.is_valid((miniboard, cell)) else num_to_disp(self.board[miniboard][cell])
 
         board_str = "+ - - - + - - - + - - - +\n"
 
