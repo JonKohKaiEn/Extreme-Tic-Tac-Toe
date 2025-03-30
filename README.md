@@ -21,10 +21,3 @@ Guide to UI:\
 1 or 2: cell taken by player 1 or player 2 respectively\
 3: cell is in a draw state\
 x: cell is available to be taken on that turn
-
-Requirements:\
-python 3.7.4
-
-To run game:\
-Run test play.py\
-Only for player vs player now
