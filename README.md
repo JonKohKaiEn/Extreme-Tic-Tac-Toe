@@ -1,6 +1,6 @@
 # ETTT
 
-Extreme Tic Tac Toe with AI(To be added...).
+Extreme Tic Tac Toe with AI(more to be added).
 
 RULES OF ETTT:
 1) 1st move: can place anywhere
